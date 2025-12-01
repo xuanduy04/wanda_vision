@@ -1,3 +1,6 @@
+import heapq
+import time
+
 import torch
 import torch.nn as nn
 
@@ -73,7 +76,12 @@ def prepare_calibration_input(model, dataloader, device):
     class Catcher(nn.Module):
         def __init__(self, module):
             super().__init__()
-            self.module = module
+            self._the_module = module
+
+        def __getattr__(self, name):
+            if name == "_the_module":
+                return super().__getattr__(name)
+            return getattr(self._the_module, name)
 
         def forward(self, inp, **kwargs):
             inps[cache['i']] = inp
@@ -88,7 +96,7 @@ def prepare_calibration_input(model, dataloader, device):
             model(batch[0].to(device))
         except ValueError:
             pass
-    layers[0] = layers[0].module
+    layers[0] = layers[0]._the_module
 
     outs = torch.zeros_like(inps)
     attention_mask = cache['attention_mask']
@@ -264,7 +272,12 @@ def prune_sparsegpt(args, model, tokenizer, dev, prune_n=0, prune_m=0):
     class Catcher(nn.Module):
         def __init__(self, module):
             super().__init__()
-            self.module = module
+            self._the_module = module
+
+        def __getattr__(self, name):
+            if name == "_the_module":
+                return super().__getattr__(name)
+            return getattr(self._the_module, name)
 
         def forward(self, inp, **kwargs):
             inps[cache['i']] = inp
@@ -279,8 +292,8 @@ def prune_sparsegpt(args, model, tokenizer, dev, prune_n=0, prune_m=0):
             model(batch[0].to(dev))
         except ValueError:
             pass
-    layers[0] = layers[0].module
-    # # torch.cuda.empty_cache()
+    layers[0] = layers[0]._the_module
+    torch.cuda.empty_cache()
 
     outs = torch.zeros_like(inps)
     attention_mask = cache['attention_mask']
@@ -377,7 +390,12 @@ def prune_ablate(args, model, tokenizer, dev, prune_n=0, prune_m=0):
     class Catcher(nn.Module):
         def __init__(self, module):
             super().__init__()
-            self.module = module
+            self._the_module = module
+
+        def __getattr__(self, name):
+            if name == "_the_module":
+                return super().__getattr__(name)
+            return getattr(self._the_module, name)
 
         def forward(self, inp, **kwargs):
             inps[cache['i']] = inp
@@ -392,8 +410,8 @@ def prune_ablate(args, model, tokenizer, dev, prune_n=0, prune_m=0):
             model(batch[0].to(dev))
         except ValueError:
             pass
-    layers[0] = layers[0].module
-    # # torch.cuda.empty_cache()
+    layers[0] = layers[0]._the_module
+    torch.cuda.empty_cache()
 
     outs = torch.zeros_like(inps)
     attention_mask = cache['attention_mask']
