@@ -175,8 +175,16 @@ def prune_wanda(args, model, tokenizer, device=torch.device("cuda:0"), prune_n=0
             handles.append(subset[name].register_forward_hook(add_batch(name)))
         for j in range(args.nsamples):
             with torch.no_grad():
-                position_embeddings = model.model.rotary_emb(inps[j].unsqueeze(0), position_ids)
-                outs[j] = layer(inps[j].unsqueeze(0), attention_mask=attention_mask, position_embeddings=position_embeddings)[0]
+                try:
+                    inputs_embeds = model.model.embed_tokens(inps[j].unsqueeze(0))
+                    position_embeddings_global = model.model.rotary_emb(inputs_embeds, position_ids)
+                    position_embeddings_local = model.model.rotary_emb_local(inputs_embeds, position_ids)
+                except:
+                    position_embeddings_global = position_embeddings_local = None
+                outs[j] = \
+                layer(inps[j].unsqueeze(0), attention_mask=attention_mask,
+                      position_embeddings_global=position_embeddings_global,
+                      position_embeddings_local=position_embeddings_local)[0]
         for h in handles:
             h.remove()
 
@@ -224,8 +232,16 @@ def prune_wanda(args, model, tokenizer, device=torch.device("cuda:0"), prune_n=0
 
         for j in range(args.nsamples):
             with torch.no_grad():
-                position_embeddings = model.model.rotary_emb(inps[j].unsqueeze(0), position_ids)
-                outs[j] = layer(inps[j].unsqueeze(0), attention_mask=attention_mask, position_embeddings=position_embeddings)[0]
+                try:
+                    inputs_embeds = model.model.embed_tokens(inps[j].unsqueeze(0))
+                    position_embeddings_global = model.model.rotary_emb(inputs_embeds, position_ids)
+                    position_embeddings_local = model.model.rotary_emb_local(inputs_embeds, position_ids)
+                except:
+                    position_embeddings_global = position_embeddings_local = None
+                outs[j] = \
+                layer(inps[j].unsqueeze(0), attention_mask=attention_mask,
+                      position_embeddings_global=position_embeddings_global,
+                      position_embeddings_local=position_embeddings_local)[0]
         inps, outs = outs, inps
 
     model.config.use_cache = use_cache
@@ -307,8 +323,16 @@ def prune_sparsegpt(args, model, tokenizer, dev, prune_n=0, prune_m=0):
             handles.append(subset[name].register_forward_hook(add_batch(name)))
 
         for j in range(args.nsamples):
-            position_embeddings = model.model.rotary_emb(inps[j].unsqueeze(0), position_ids)
-            outs[j] = layer(inps[j].unsqueeze(0), attention_mask=attention_mask, position_embeddings=position_embeddings)[0]
+            try:
+                inputs_embeds = model.model.embed_tokens(inps[j].unsqueeze(0))
+                position_embeddings_global = model.model.rotary_emb(inputs_embeds, position_ids)
+                position_embeddings_local = model.model.rotary_emb_local(inputs_embeds, position_ids)
+            except:
+                position_embeddings_global = position_embeddings_local = None
+            outs[j] = \
+            layer(inps[j].unsqueeze(0), attention_mask=attention_mask,
+                  position_embeddings_global=position_embeddings_global,
+                  position_embeddings_local=position_embeddings_local)[0]
         for h in handles:
             h.remove()
 
@@ -320,8 +344,16 @@ def prune_sparsegpt(args, model, tokenizer, dev, prune_n=0, prune_m=0):
             gpts[name].free()
 
         for j in range(args.nsamples):
-            position_embeddings = model.model.rotary_emb(inps[j].unsqueeze(0), position_ids)
-            outs[j] = layer(inps[j].unsqueeze(0), attention_mask=attention_mask, position_embeddings=position_embeddings)[0]
+            try:
+                inputs_embeds = model.model.embed_tokens(inps[j].unsqueeze(0))
+                position_embeddings_global = model.model.rotary_emb(inputs_embeds, position_ids)
+                position_embeddings_local = model.model.rotary_emb_local(inputs_embeds, position_ids)
+            except:
+                position_embeddings_global = position_embeddings_local = None
+            outs[j] = \
+            layer(inps[j].unsqueeze(0), attention_mask=attention_mask,
+                  position_embeddings_global=position_embeddings_global,
+                  position_embeddings_local=position_embeddings_local)[0]
 
         layers[i] = layer
         # # torch.cuda.empty_cache()
