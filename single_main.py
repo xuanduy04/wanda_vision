@@ -20,7 +20,8 @@ repo_path = os.getcwd()
 main_tests = [(model_name, pruning_dataset_name, prune_method)
               for pruning_dataset_name in ("magic_hq", "magic_qa")
               for prune_method in ("magnitude", "wanda", "sparsegpt")
-              for model_name in ("google/gemma-3-270m", "google/gemma-3-1b-pt", "google/gemma-3-4b-pt")]
+              for model_name in ("google/gemma-3-270m", "google/gemma-3-1b-pt", "Qwen/Qwen2.5-3B")]
+# "google/gemma-3-4b-pt"
 
 from pprint import pprint
 pprint(main_tests)

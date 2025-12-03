@@ -37,7 +37,7 @@ def find_original_model(mapped_config):
     if len(best) > 1:
         raise ValueError(f"Ambiguous match: {best}")
 
-    return best[0]
+    return [best[0]]
 
 
 
@@ -45,6 +45,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", "-cf", type=str)
     parser.add_argument("--cuda", type=str, default=4)
+    parser.add_argument("--batch_size", "-bs", type=int, default=None)
     args = parser.parse_args()
     config:str = args.config.split(",")
     config = [c.strip() for c in config]
@@ -84,7 +85,7 @@ def main():
             "--model", "hf",
             "--model_args", f"pretrained={model_save_path},max_position_embeddings=4096",
             "--tasks", "wikitext,hellaswag,race,piqa,winogrande,arc_easy,arc_challenge,sciq,boolq",
-            "--batch_size", "auto",
+            "--batch_size", "auto" if args.batch_size is None else str(args.batch_size),
             "--output_path", "results"
         ], check=True)
 
