@@ -53,7 +53,7 @@ def main():
             "lm_eval",
             "--model", "hf",
             "--model_args", f"pretrained={model_save_path},max_position_embeddings=4096",
-            "--tasks", "wikitext,hellaswag,race,piqa,winogrande,arc_easy,arc_challenge,sciq",
+            "--tasks", "wikitext,hellaswag,race,piqa,winogrande,arc_easy,arc_challenge,sciq,boolq",
             "--batch_size", "auto",
             "--output_path", "results"
         ], check=True)
