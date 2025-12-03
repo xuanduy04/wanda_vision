@@ -31,15 +31,15 @@ def main():
     repo_path = os.getcwd()
 
     pruned_model_folder = f"{repo_path}/pruned_models/"
-    all_files = []
+    all_folders = []
     for root, dirs, files in os.walk(pruned_model_folder):
-        for file in files:
-            all_files.append(os.path.join(root, file))
+        for d in dirs:
+            all_folders.append(os.path.join(root, d))
     
-    candidate_model = [p for p in all_files if all(x in p.lower() for x in mapped_config)]
+    candidate_model = [p for p in all_folders if all(x in p.lower() for x in mapped_config)]
 
     if len(candidate_model) > 1:
-        raise ValueError(f"More than one model matches {config=}\n(\n\t{mapped_config=}\n\t{candidate_model=})"")
+        raise ValueError(f"More than one model matches {config=}\n(\n\t{mapped_config=}\n\t{candidate_model=})")
     if len(candidate_model) == 0:
         raise ValueError(f"No model matches {config=}\n(\n\t{mapped_config=}\n\t{candidate_model=})")
 
