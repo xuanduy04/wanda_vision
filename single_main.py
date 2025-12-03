@@ -6,8 +6,6 @@ import argparse
 from huggingface_hub import login
 from tqdm.auto import tqdm
 
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 os.makedirs("pruned_models", exist_ok=True)
 login(TOKEN)
 
@@ -29,7 +27,10 @@ pprint(main_tests)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--item", type=int, default=None, help="Index of main_tests to run. Run all if empty.")
+parser.add_argument("--cuda", type=str, default=4)
 args = parser.parse_args()
+
+os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda if isinstance(args.cuda, str) else str(args.cuda)
 
 # select single item if --item is provided
 tests_to_run = [main_tests[args.item]] if args.item is not None else main_tests
