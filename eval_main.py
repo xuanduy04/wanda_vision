@@ -16,27 +16,29 @@ except ImportError:
 
 
 def find_original_model(mapped_config):
-    candidate_model = {
+    candidate_model = [
         "google/gemma-3-270m",
         "google/gemma-3-1b-pt",
-        "Qwen/Qwen2.5-3B",
-    }
+        "Qwen/Qwen2.5-3B"
+    ]
+    scores = {m: 0 for m in candidate_model}
 
-    scores = {}
     for x in mapped_config:
-        if x in candidate_model:
-            scores[x] = scores.get(x, 0) + 1
-
-    if not scores:
-        raise ValueError(f"No matching original model found for {mapped_config=}")
+        for m in candidate_model:
+            if x in m:
+                scores[m] += 1
 
     max_score = max(scores.values())
     best = [m for m, s in scores.items() if s == max_score]
 
-    if len(best) != 1:
+    if max_score == 0:
+        raise ValueError("No matching original model found")
+
+    if len(best) > 1:
         raise ValueError(f"Ambiguous match: {best}")
 
     return best[0]
+
 
 
 def main():
