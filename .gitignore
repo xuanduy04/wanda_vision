@@ -143,3 +143,4 @@ nbs/wandb/
 examples/notebooks/wandb/
 wandb/
 n-m-pruning-baselines.ipynb
+pruned_models/
