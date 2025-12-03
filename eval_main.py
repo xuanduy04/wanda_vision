@@ -1,11 +1,11 @@
-from huggingface_hub import login
-login("")
+TOKEN = ""
 
 import os
 import subprocess
 from pprint import pprint
 import argparse
 
+from huggingface_hub import login
 from tqdm.auto import tqdm
 
 try:
@@ -27,6 +27,7 @@ def main():
     
     os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda if isinstance(args.cuda, str) else str(args.cuda)
     os.makedirs("pruned_models", exist_ok=True)
+    login(TOKEN)
     
     repo_path = os.getcwd()
 

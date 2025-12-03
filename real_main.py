@@ -1,3 +1,5 @@
+TOKEN = ""
+
 import os
 import subprocess
 from pprint import pprint
@@ -13,7 +15,7 @@ except ImportError:
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 os.makedirs("pruned_models", exist_ok=True)
-login("")
+login(TOKEN)
 
 prune_n = 2
 prune_m = 4
