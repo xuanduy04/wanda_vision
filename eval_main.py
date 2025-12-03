@@ -15,6 +15,30 @@ except ImportError:
     import lm_eval
 
 
+def find_original_model(mapped_config):
+    candidate_model = {
+        "google/gemma-3-270m",
+        "google/gemma-3-1b-pt",
+        "Qwen/Qwen2.5-3B",
+    }
+
+    scores = {}
+    for x in mapped_config:
+        if x in candidate_model:
+            scores[x] = scores.get(x, 0) + 1
+
+    if not scores:
+        raise ValueError(f"No matching original model found for {mapped_config=}")
+
+    max_score = max(scores.values())
+    best = [m for m, s in scores.items() if s == max_score]
+
+    if len(best) != 1:
+        raise ValueError(f"Ambiguous match: {best}")
+
+    return best[0]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", "-cf", type=str)
@@ -26,6 +50,7 @@ def main():
     mapped_config = config
     
     os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda if isinstance(args.cuda, str) else str(args.cuda)
+    print(f"Running on device = '{args.cuda}'")
     os.makedirs("pruned_models", exist_ok=True)
     login(TOKEN)
     
@@ -39,6 +64,9 @@ def main():
     
     candidate_model = [p for p in all_folders if all(x in p.lower() for x in mapped_config)]
 
+    if any("original" in x for x in mapped_config):
+        candidate_model = find_original_model(mapped_config)
+
     if len(candidate_model) > 1:
         raise ValueError(f"More than one model matches {config=}\n(\n\t{mapped_config=}\n\t{candidate_model=})")
     if len(candidate_model) == 0:
@@ -47,7 +75,7 @@ def main():
     model_save_path = candidate_model[0]
 
     if "FAIL" in model_save_path:
-        print(f"Model FAILED\n({model_save_path})")
+        print(f"Model FAILED\n({model_save_path=})")
     else:
         subprocess.run([
             "lm_eval",
