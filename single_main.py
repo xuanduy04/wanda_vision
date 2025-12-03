@@ -57,13 +57,14 @@ for idx, (model_name, pruning_dataset_name, prune_method) in tqdm(enumerate(test
         subprocess.run(cmd, check=True)
     except:
         os.makedirs(f"{model_save_path}_FAIL", exist_ok=True)
+        print("FAILED")
         continue
 
     subprocess.run([
         "lm_eval",
         "--model", "hf",
         "--model_args", f"pretrained={model_save_path},max_position_embeddings=4096",
-        "--tasks", "wikitext,hellaswag,race,piqa,winogrande,arc_easy,arc_challenge,sciq",
+        "--tasks", "wikitext,hellaswag,race,piqa,winogrande,arc_easy,arc_challenge,sciq,boolq",
         "--batch_size", "auto",
         "--output_path", "results"
     ], check=True)

@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from importlib.metadata import version
+from pprint import pprint
 
 from lib.prune_gemma import prune_wanda, prune_magnitude, prune_sparsegpt, prune_ablate, check_sparsity, find_layers
 from lib.eval import eval_ppl, eval_zero_shot
@@ -56,6 +57,7 @@ def main():
     model_name = args.model.split("/")[-1]
     print(f"loading llm model {args.model}")
     model = get_llm(args.model, args.cache_dir)
+    pprint(model.config)
     model.eval()
     tokenizer = AutoTokenizer.from_pretrained(args.model, use_fast=False)
 
