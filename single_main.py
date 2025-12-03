@@ -2,16 +2,10 @@ TOKEN = ""
 
 import os
 import subprocess
-from pprint import pprint
-
+import argparse
 from huggingface_hub import login
 from tqdm.auto import tqdm
 
-try:
-    import lm_eval
-except ImportError:
-    subprocess.run(["pip", "install", "lm_eval"], check=True)
-    import lm_eval
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 os.makedirs("pruned_models", exist_ok=True)
@@ -19,7 +13,6 @@ login(TOKEN)
 
 prune_n = 2
 prune_m = 4
-
 sparsity_ratio: float = float(prune_n) / float(prune_m)
 sparsity_type = f"{prune_n}:{prune_m}"
 
@@ -31,20 +24,25 @@ main_tests = [(model_name, pruning_dataset_name, prune_method)
               for prune_method in ("magnitude", "wanda", "sparsegpt")
               for model_name in ("google/gemma-3-270m", "google/gemma-3-1b-pt", "google/gemma-3-4b-pt")]
 
-no_eval = False
-for idx, (model_name, pruning_dataset_name, prune_method) in tqdm(enumerate(main_tests), leave=True):
+from pprint import pprint
+pprint(main_tests)
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--item", type=int, default=None, help="Index of main_tests to run. Run all if empty.")
+args = parser.parse_args()
+
+# select single item if --item is provided
+tests_to_run = [main_tests[args.item]] if args.item is not None else main_tests
+
+for idx, (model_name, pruning_dataset_name, prune_method) in tqdm(enumerate(tests_to_run), total=len(tests_to_run)):
     save_name = model_name.replace("/", "__") + f"-{pruning_dataset_name}" + f"-{prune_n}of{prune_m}"
     model_save_path = f"{repo_path}/pruned_models/{prune_method}/{save_name}"
     print(
-        f"{idx}/{len(main_tests)}: Pruning '{model_name}' using '{prune_method}' method on '{pruning_dataset_name}' data"
+        f"{idx}/{len(tests_to_run)}: Pruning '{model_name}' using '{prune_method}' method on '{pruning_dataset_name}' data"
         f"\n\twith {sparsity_type} sparsity (ratio = {sparsity_ratio}).")
     print(f"Model will be saved at '{model_save_path}'")
 
-    script = (
-        "main_opt.py" if "opt" in model_name else
-        "main_gemma.py" if "gemma" in model_name else
-        "main.py"
-    )
+    script = "main_opt.py" if "opt" in model_name else "main_gemma.py" if "gemma" in model_name else "main.py"
 
     cmd = [
         "python", script,
@@ -59,10 +57,8 @@ for idx, (model_name, pruning_dataset_name, prune_method) in tqdm(enumerate(main
         subprocess.run(cmd, check=True)
     except:
         os.makedirs(f"{model_save_path}_FAIL", exist_ok=True)
-    
+        continue
 
-    if "FAIL" in model_save_path:
-            continue
     subprocess.run([
         "lm_eval",
         "--model", "hf",
