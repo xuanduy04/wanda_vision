@@ -16,14 +16,14 @@ except ImportError:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", "-cf", type=str)
-    parser.add_argument("--cuda", type=int, default=4)
+    parser.add_argument("--cuda", type=str, default=4)
     args = parser.parse_args()
-    config = args.config.sep(",")
+    config:str = args.config.split(",")
     config = [c.strip() for c in config]
 
     mapped_config = config
-
-    os.environ["CUDA_VISIBLE_DEVICES"] = f"{int(args.cuda)}"
+    
+    os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda if isinstance(args.cuda, str) else str(args.cuda)
     os.makedirs("pruned_models", exist_ok=True)
     login("")
 
