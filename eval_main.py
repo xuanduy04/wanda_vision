@@ -1,9 +1,11 @@
+from huggingface_hub import login
+login("")
+
 import os
 import subprocess
 from pprint import pprint
 import argparse
 
-from huggingface_hub import login
 from tqdm.auto import tqdm
 
 try:
@@ -25,8 +27,7 @@ def main():
     
     os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda if isinstance(args.cuda, str) else str(args.cuda)
     os.makedirs("pruned_models", exist_ok=True)
-    login("")
-
+    
     repo_path = os.getcwd()
 
     pruned_model_folder = f"{repo_path}/pruned_models/"
@@ -38,9 +39,9 @@ def main():
     candidate_model = [p for p in all_files if all(x in p.lower() for x in mapped_config)]
 
     if len(candidate_model) > 1:
-        raise ValueError(f"More than one model matches {config=}\n({mapped_config=})")
+        raise ValueError(f"More than one model matches {config=}\n(\n\t{mapped_config=}\n\t{candidate_model=})"")
     if len(candidate_model) == 0:
-        raise ValueError(f"No model matches {config=}\n({mapped_config=})")
+        raise ValueError(f"No model matches {config=}\n(\n\t{mapped_config=}\n\t{candidate_model=})")
 
     model_save_path = candidate_model[0]
 
