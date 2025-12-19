@@ -42,7 +42,7 @@ save_name = model_name.replace("/", "__") + "-modern" + f"-{prune_n}of{prune_m}"
 model_save_path = f"{repo_path}/pruned_models/{prune_method}/{save_name}"
 print(
     f"Pruning '{model_name}' using '{prune_method}' method"
-    f"\n\twith {sparsity_type} sparsity (ratio = {sparsity_ratio}).")
+    f"\n\t\twith {sparsity_type} sparsity (ratio = {sparsity_ratio}).")
 print(f"Model will be saved at '{model_save_path}'")
 
 script = "main_opt.py" if "opt" in model_name else "main_gemma.py" if "gemma" in model_name else "main.py"
