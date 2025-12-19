@@ -4,7 +4,7 @@ import numpy as np
 import torch
 
 from pathlib import Path
-
+from tqdm.auto import tqdm
 from datasets import load_dataset, DatasetDict, Dataset
 
 
@@ -24,7 +24,7 @@ def prepare_trainloader_valenc(traindata, valdata, seed, nsamples, seqlen, token
     # Generate samples from training set
     random.seed(seed)
     trainloader = []
-    for _ in range(nsamples):
+    for _ in tqdm(range(nsamples), desc='Generating samples from training set'):
         while True:
             i = random.randint(0, len(traindata) - 1)
             trainenc = tokenizer(traindata[i]['text'], return_tensors='pt')
@@ -36,13 +36,14 @@ def prepare_trainloader_valenc(traindata, valdata, seed, nsamples, seqlen, token
         tar = inp.clone()
         tar[:, :-1] = -100
         trainloader.append((inp, tar))
-
-    print("generating samples done")
+    print('Done')
 
     # Prepare validation dataset
-    valenc = tokenizer(' '.join(valdata[:1100]['text']), return_tensors='pt')
+    print('Preparing validation dataset... ', end='')
+    valenc = tokenizer(' '.join(valdata[:128]['text']), return_tensors='pt')  # it's not really used...
     valenc = valenc.input_ids[:, :(256 * seqlen)]
     valenc = TokenizerWrapper(valenc)
+    print('Done')
     return trainloader, valenc
 
 
