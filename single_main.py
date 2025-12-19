@@ -33,7 +33,9 @@ sparsity_type = args.sparsity_type
 prune_n, prune_m = map(int, sparsity_type.split(":"))
 sparsity_ratio = prune_n / prune_m
 
-os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda if isinstance(args.cuda, str) else str(args.cuda)
+
+device = args.cuda if isinstance(args.cuda, str) else str(args.cuda)
+os.environ["CUDA_VISIBLE_DEVICES"] = device
 
 prune_method = 'magnitude' if args.magnitude else 'wanda' if args.wanda else 'sparsegpt' if args.sparsegpt else "INVALID"
 
@@ -41,7 +43,7 @@ prune_method = 'magnitude' if args.magnitude else 'wanda' if args.wanda else 'sp
 save_name = model_name.replace("/", "__") + "-modern" + f"-{prune_n}of{prune_m}"
 model_save_path = f"{repo_path}/pruned_models/{prune_method}/{save_name}"
 print(
-    f"Pruning '{model_name}' using '{prune_method}' method"
+    f"Pruning '{model_name}' using '{prune_method}' method on device {device}"
     f"\n\t\twith {sparsity_type} sparsity (ratio = {sparsity_ratio}).")
 print(f"Model will be saved at '{model_save_path}'")
 
