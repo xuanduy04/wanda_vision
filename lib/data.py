@@ -5,7 +5,7 @@ import torch
 
 from pathlib import Path
 
-from datasets import load_dataset, DatasetDict
+from datasets import load_dataset, DatasetDict, Dataset
 
 
 # Set seed for reproducibility
@@ -100,12 +100,15 @@ def get_modern(nsamples, seed, seqlen, tokenizer):
         },
         streaming=True
     )
+    train_stream = raw_dataset["train"].take(nsamples)
+    train_dataset = Dataset.from_list(list(train_stream))
+
     dataset = DatasetDict({
-        'train': raw_dataset['train'].take(nsamples),
-        'validation': raw_dataset['train'].take(nsamples),
-        'test': raw_dataset['train'].take(1)
+        "train": train_dataset,
+        "validation": train_dataset
     })
-    del raw_dataset, dataset["test"]
+
+    del raw_dataset
     print('Done')
 
     return prepare_trainloader_valenc(dataset['train'], dataset['validation'], seed, nsamples, seqlen, tokenizer)
