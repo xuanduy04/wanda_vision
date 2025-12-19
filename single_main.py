@@ -31,7 +31,7 @@ sparsity_ratio = prune_n / prune_m
 os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda if isinstance(args.cuda, str) else str(args.cuda)
 
 assert int(args.magnitude + args.wanda + args.sparsegpt) == 1
-prune_method = 'magnitude' if args.magnitude else 'wanda' if args.wanda else 'sprasegpt' if args.sparsegpt
+prune_method = 'magnitude' if args.magnitude else 'wanda' if args.wanda else 'sprasegpt' if args.sparsegpt else "INVALID"
 
 
 save_name = model_name.replace("/", "__") + "-modern" + f"-{prune_n}of{prune_m}"
