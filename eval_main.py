@@ -45,7 +45,7 @@ def find_original_model(mapped_config):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", "-cf", type=str)
+    parser.add_argument("--config", "-cf", type=str, required=True)
     parser.add_argument("--cuda", type=str, default=4)
     parser.add_argument("--batch_size", "-bs", type=int, default=None)
     args = parser.parse_args()
