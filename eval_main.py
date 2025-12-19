@@ -25,7 +25,7 @@ def find_original_model(mapped_config):
 
     for x in mapped_config:
         for m in candidate_model:
-            if x in m:
+            if x in m.lower():
                 scores[m] += 1
 
     max_score = max(scores.values())
