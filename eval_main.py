@@ -19,7 +19,9 @@ def find_original_model(mapped_config):
     candidate_model = [
         "google/gemma-3-270m",
         "google/gemma-3-1b-pt",
-        "Qwen/Qwen2.5-3B"
+        "Qwen/Qwen2.5-1.5B",
+        "Qwen/Qwen2.5-3B",
+        "Qwen/Qwen2.5-7B"
     ]
     scores = {m: 0 for m in candidate_model}
 

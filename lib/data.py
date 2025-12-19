@@ -2,7 +2,10 @@ import random
 
 import numpy as np
 import torch
-from datasets import load_dataset
+
+from pathlib import Path
+
+from datasets import load_dataset, DatasetDict
 
 
 # Set seed for reproducibility
@@ -87,6 +90,27 @@ def get_susi_magical_data(split, nsamples, seed, seqlen, tokenizer):
     return prepare_trainloader_valenc(traindata, valdata, seed, nsamples, seqlen, tokenizer)
 
 
+def get_modern(nsamples, seed, seqlen, tokenizer):
+    BASE_DIR = Path(__file__).resolve().parent.parent  # {etc}/wanda_vision
+    print(f'Loading dataset at `{str(BASE_DIR.parent / "data" / "for_susi")}`... ', end='')
+    raw_dataset = load_dataset(
+        "parquet",
+        data_files={
+            "train": str(BASE_DIR.parent / "data" / "for_susi" / "*.parquet")
+        },
+        streaming=True
+    )
+    dataset = DatasetDict({
+        'train': raw_dataset['train'],
+        'validation': raw_dataset['train'].take(nsamples),
+        'test': raw_dataset['train'].take(1)
+    })
+    del raw_dataset, dataset["test"]
+    print('Done')
+
+    return prepare_trainloader_valenc(dataset['train'], dataset['validation'], seed, nsamples, seqlen, tokenizer)
+
+
 # Function to select the appropriate loader based on dataset name
 def get_loaders(name, nsamples=128, seed=0, seqlen=None, tokenizer=None):
     """
@@ -114,5 +138,8 @@ def get_loaders(name, nsamples=128, seed=0, seqlen=None, tokenizer=None):
             raise ValueError(
                 f"Dataset with name '{name}' is a type of 'magic' but no valid split found ('hq' or 'qa').")
         return get_susi_magical_data(split, nsamples, seed, seqlen, tokenizer)
+    
+    if "modern" in name.lower():
+        return get_modern(nsamples, seed, seqlen, tokenizer)
 
     raise ValueError(f"Dataset with name '{name}' not found.")
