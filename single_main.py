@@ -17,9 +17,9 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--qwen_model_size", type=str, choices=['1.5', '3', '7'])
 parser.add_argument("--sparsity_type", type=str, default="2:4")
 parser.add_argument("--cuda", type=str, default=4)
-parser.add_argument("--magnitude", type=bool, default=False, action='store_true')
-parser.add_argument("--wanda", type=bool, default=False, action='store_true')
-parser.add_argument("--sprasegpt", type=bool, default=False, action='store_true')
+parser.add_argument("--magnitude", default=False, action='store_true')
+parser.add_argument("--wanda", default=False, action='store_true')
+parser.add_argument("--sprasegpt", default=False, action='store_true')
 args = parser.parse_args()
 
 model_name = f"Qwen/Qwen2.5-{args.qwen_model_size}B"
