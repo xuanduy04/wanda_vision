@@ -44,7 +44,7 @@ print(
 print(f"Model will be saved at '{model_save_path}'")
 
 script = "main_opt.py" if "opt" in model_name else "main_gemma.py" if "gemma" in model_name else "main.py"
-
+script = repo_path + "/" + script
 cmd = [
     "python", script,
     "--model", model_name,
