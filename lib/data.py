@@ -101,7 +101,7 @@ def get_modern(nsamples, seed, seqlen, tokenizer):
         streaming=True
     )
     dataset = DatasetDict({
-        'train': raw_dataset['train'],
+        'train': raw_dataset['train'].take(nsamples),
         'validation': raw_dataset['train'].take(nsamples),
         'test': raw_dataset['train'].take(1)
     })
