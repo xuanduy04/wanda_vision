@@ -3,15 +3,17 @@ TOKEN = ""
 import os
 import subprocess
 import argparse
+
 from huggingface_hub import login
 from pprint import pprint
+from pathlib import Path
 from tqdm.auto import tqdm
 
 os.makedirs("pruned_models", exist_ok=True)
 # login(TOKEN)
 
 repository = 'wanda_vision'
-repo_path = os.getcwd()
+repo_path = str(Path(__file__).resolve().parent)  # {etc}/wanda_vision
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--qwen_model_size", type=str, choices=['1.5', '3', '7'], required=True)
