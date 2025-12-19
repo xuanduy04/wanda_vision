@@ -17,9 +17,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--qwen_model_size", type=str, choices=['1.5', '3', '7'], required=True)
 parser.add_argument("--sparsity_type", type=str, default="2:4")
 parser.add_argument("--cuda", type=str, default=4)
-parser.add_argument("--magnitude", default=False, action='store_true')
-parser.add_argument("--wanda", default=False, action='store_true')
-parser.add_argument("--sparsegpt", default=False, action='store_true')
+# Exactly one pruning method must be selected
+pruning_group = parser.add_mutually_exclusive_group(required=True)
+pruning_group.add_argument("--magnitude", action="store_true", help="Magnitude pruning")
+pruning_group.add_argument("--wanda", action="store_true", help="WANDA pruning")
+pruning_group.add_argument("--sparsegpt", action="store_true", help="SparseGPT pruning")
+
 args = parser.parse_args()
 
 model_name = f"Qwen/Qwen2.5-{args.qwen_model_size}B"
@@ -30,7 +33,6 @@ sparsity_ratio = prune_n / prune_m
 
 os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda if isinstance(args.cuda, str) else str(args.cuda)
 
-assert int(args.magnitude + args.wanda + args.sparsegpt) == 1
 prune_method = 'magnitude' if args.magnitude else 'wanda' if args.wanda else 'sparsegpt' if args.sparsegpt else "INVALID"
 
 
