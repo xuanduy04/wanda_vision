@@ -49,7 +49,7 @@ save_name = model_name.replace("/", "__") + "-modern" + f"-{prune_n}of{m}"
 model_save_path = f"{repo_path}/pruned_models/{prune_method}/{save_name}"
 print(
     f"Pruning '{model_name}' using '{prune_method}' method on device {device}"
-    f"\n\t\twith KEEP ratio = {keep_sparsity_ratio} (prune {prune_sparsity_type.replace(":", " of ")}, KEEP {keep_sparsity_type.replace(":", " of ")}).")
+    f"\n\t\twith KEEP ratio = {keep_sparsity_ratio} (prune {prune_sparsity_type.replace(':', ' of ')}, KEEP {keep_sparsity_type.replace(':', ' of ')}).")
 print(f"Model will be saved at '{model_save_path}'")
 
 script = "main_opt.py" if "opt" in model_name else "main_gemma.py" if "gemma" in model_name else "main.py"
