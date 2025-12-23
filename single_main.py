@@ -60,7 +60,7 @@ cmd = [
     "--pruning_dataset_name", "modern",
     "--prune_method", prune_method,
     "--sparsity_ratio", str(keep_sparsity_ratio),
-    "--prune_sparsity_type", keep_sparsity_type,
+    "--sparsity_type", keep_sparsity_type,
     "--save_model", model_save_path
 ]
 
