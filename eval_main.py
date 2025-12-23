@@ -17,6 +17,7 @@ except ImportError:
 
 def find_original_model(mapped_config):
     candidate_model = [
+        "Qwen/Qwen2.5-0.5B",
         "Qwen/Qwen2.5-1.5B",
         "Qwen/Qwen2.5-3B",
         "Qwen/Qwen2.5-7B"

@@ -16,9 +16,9 @@ repository = 'wanda_vision'
 repo_path = str(Path(__file__).resolve().parent)  # {etc}/wanda_vision
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--qwen_model_size", type=str, choices=['1.5', '3', '7'], required=True)
-parser.add_argument("--sparsity_type", type=str, default="2:4")
-parser.add_argument("--cuda", type=str, default=4)
+parser.add_argument("--qwen_model_size", type=str, choices=['0.5', '1.5', '3', '7'], required=True)
+parser.add_argument("--prune_sparsity_type", type=str, default="2:4")
+parser.add_argument("--cuda", type=str, default=7)
 # Exactly one pruning method must be selected
 pruning_group = parser.add_mutually_exclusive_group(required=True)
 pruning_group.add_argument("--magnitude", action="store_true", help="Magnitude pruning")
@@ -29,9 +29,13 @@ args = parser.parse_args()
 
 model_name = f"Qwen/Qwen2.5-{args.qwen_model_size}B"
 
-sparsity_type = args.sparsity_type
-prune_n, prune_m = map(int, sparsity_type.split(":"))
-sparsity_ratio = prune_n / prune_m
+prune_sparsity_type = args.prune_sparsity_type
+prune_n, m = map(int, prune_sparsity_type.split(":"))
+keep_n = m - prune_n
+assert keep_n > 0
+
+keep_sparsity_type: str = f"{keep_n}:{m}"
+keep_sparsity_ratio = float(keep_n) / m
 
 
 device = args.cuda if isinstance(args.cuda, str) else str(args.cuda)
@@ -40,11 +44,11 @@ os.environ["CUDA_VISIBLE_DEVICES"] = device
 prune_method = 'magnitude' if args.magnitude else 'wanda' if args.wanda else 'sparsegpt' if args.sparsegpt else "INVALID"
 
 
-save_name = model_name.replace("/", "__") + "-modern" + f"-{prune_n}of{prune_m}"
+save_name = model_name.replace("/", "__") + "-modern" + f"-{prune_n}of{m}"
 model_save_path = f"{repo_path}/pruned_models/{prune_method}/{save_name}"
 print(
     f"Pruning '{model_name}' using '{prune_method}' method on device {device}"
-    f"\n\t\twith {sparsity_type} sparsity (ratio = {sparsity_ratio}).")
+    f"\n\t\twith KEEP ratio = {keep_sparsity_ratio} (prune {prune_sparsity_type.replace(":", " of ")}, KEEP {keep_sparsity_type.replace(":", " of ")}).")
 print(f"Model will be saved at '{model_save_path}'")
 
 script = "main_opt.py" if "opt" in model_name else "main_gemma.py" if "gemma" in model_name else "main.py"
@@ -54,8 +58,8 @@ cmd = [
     "--model", model_name,
     "--pruning_dataset_name", "modern",
     "--prune_method", prune_method,
-    "--sparsity_ratio", str(sparsity_ratio),
-    "--sparsity_type", sparsity_type,
+    "--sparsity_ratio", str(keep_sparsity_ratio),
+    "--prune_sparsity_type", keep_sparsity_type,
     "--save_model", model_save_path
 ]
 
