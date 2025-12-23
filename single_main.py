@@ -17,8 +17,8 @@ repo_path = str(Path(__file__).resolve().parent)  # {etc}/wanda_vision
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--qwen_model_size", type=str, choices=['0.5', '1.5', '3', '7'], required=True)
-parser.add_argument("--prune_sparsity_type", type=str, default="2:4",
-                    help='how many to PRUNE (e.g. "2:8" means prune 2 for every 8, and keep 6 every 8)')
+parser.add_argument("--keep_sparsity_type", type=str, default="2:4",
+                    help='how many to KEEP (e.g. "2:8" means keep 2 for every 8, and prune 6 every 8)')
 parser.add_argument("--cuda", type=str, default=7)
 # Exactly one pruning method must be selected
 pruning_group = parser.add_mutually_exclusive_group(required=True)
@@ -30,13 +30,14 @@ args = parser.parse_args()
 
 model_name = f"Qwen/Qwen2.5-{args.qwen_model_size}B"
 
-prune_sparsity_type = args.prune_sparsity_type
-prune_n, m = map(int, prune_sparsity_type.split(":"))
-keep_n = m - prune_n
-assert keep_n > 0
-
-keep_sparsity_type: str = f"{keep_n}:{m}"
+keep_sparsity_type = args.keep_sparsity_type
+keep_n, m = map(int, keep_sparsity_type.split(":"))
 keep_sparsity_ratio = float(keep_n) / m
+
+prune_n = m - keep_n
+assert prune_n > 0
+prune_sparsity_type: str = f"{prune_n}:{m}"
+prune_sparsity_ratio = float(prune_n) / m
 
 
 device = args.cuda if isinstance(args.cuda, str) else str(args.cuda)
@@ -45,7 +46,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = device
 prune_method = 'magnitude' if args.magnitude else 'wanda' if args.wanda else 'sparsegpt' if args.sparsegpt else "INVALID"
 
 
-save_name = model_name.replace("/", "__") + "-modern" + f"-{prune_n}of{m}"
+save_name = model_name.replace("/", "__") + "-modern" + f"-{keep_n}of{m}"
 model_save_path = f"{repo_path}/pruned_models/{prune_method}/{save_name}"
 print(
     f"Pruning '{model_name}' using '{prune_method}' method on device {device}"
