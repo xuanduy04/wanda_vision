@@ -17,7 +17,8 @@ repo_path = str(Path(__file__).resolve().parent)  # {etc}/wanda_vision
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--qwen_model_size", type=str, choices=['0.5', '1.5', '3', '7'], required=True)
-parser.add_argument("--prune_sparsity_type", type=str, default="2:4")
+parser.add_argument("--prune_sparsity_type", type=str, default="2:4",
+                    help='how many to PRUNE (e.g. "2:8" means prune 2 for every 8, and keep 6 every 8)')
 parser.add_argument("--cuda", type=str, default=7)
 # Exactly one pruning method must be selected
 pruning_group = parser.add_mutually_exclusive_group(required=True)
